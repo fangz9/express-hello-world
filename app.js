@@ -1,19 +1,85 @@
 const express = require("express");
-const app = express();
+const cors = require("cors");
+const mongoose = require("mongoose");
 const port = process.env.PORT || 3001;
 
+
+// Initialize app
+const app = express();
+//  Url Encoded Middle Ware
+app.use(express.urlencoded({ extended: true }));
+
+// Enable All CORS(Cross-Origin Resource Sharing) Requests
+app.use(cors);
+
+//  Let me store my URI in a variable, this is from the mongodb site
+// This is meant to be hidden in an .env file but we will do that later
+const uri =
+  "mongodb+srv://prybertocode:drkillerbean.@agrointech.eidpvbr.mongodb.net/myUsers?retryWrites=true&w=majority";
+// Lets Test the Mongoose
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+//Lets Check the connection
+const db = mongoose.connection;
+
+// Check for Errors
+db.on("error", (err) => {
+  console.error(err);
+});
+
+// Lets Test Our by hardcoding some data to our mongodb database
+// So Lets define something Called a Schema(New database field)
+// I'm Defining what will be in the Schema and the data type
+const userSchema = new mongoose.Schema({
+  First_Name: String,
+  Last_Name: String,
+  Title: String,
+  Email: String,
+  Country: String,
+  Street: String,
+  Zip: Number,
+});
+
+const User = mongoose.model("User", userSchema);
+
+// So to direct the localhost:4000/submit to actually submit we do this
+// Req is request
+// Res is response
+
 app.get("/", (req, res) => res.type('html').send(html));
+app.post("/submit", async (req, res) => {
+  // Destructuring
+  const { firstName, lastName, title, email, country, street, zip } = req.body;
 
-const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+  const newUser = new User({
+    First_name: firstName,
+    Last_Name: lastName,
+    Title: title,
+    Email: email,
+    Country: country,
+    Street: street,
+    Zip: zip,
+  });
 
-server.keepAliveTimeout = 120 * 1000;
-server.headersTimeout = 120 * 1000;
+  // Try-Catch For Proper Error Handling
 
+  try {
+    await newUser.save();
+    res.send("user added successfully");
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+
+const server = app.listen(port, () => console.log(`App listening on port ${port}!`));
 const html = `
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Hello from Render!</title>
+    <title>Private Server!</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script>
       setTimeout(() => {
@@ -54,7 +120,7 @@ const html = `
   </head>
   <body>
     <section>
-      Hello from Render!
+      Don't Touch This Server hahaha Just Kidding
     </section>
   </body>
 </html>
