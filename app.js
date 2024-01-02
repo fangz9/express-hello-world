@@ -12,7 +12,14 @@ app.use(express.urlencoded({ extended: true }));
 // Enable All CORS(Cross-Origin Resource Sharing) Requests
 app.use(cors);
 
-//  Let me store my URI in a variable, this is from the mongodb site
+// So to direct the localhost:4000/submit to actually submit we do this
+// Req is request
+// Res is response
+
+app.get("/", (req, res) => res.type('html').send(html));
+app.post("/submit", async (req, res) => {
+
+  //  Let me store my URI in a variable, this is from the mongodb site
 // This is meant to be hidden in an .env file but we will do that later
 const uri =
   "mongodb+srv://prybertocode:drkillerbean.@agrointech.eidpvbr.mongodb.net/myUsers?retryWrites=true&w=majority";
@@ -44,12 +51,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-// So to direct the localhost:4000/submit to actually submit we do this
-// Req is request
-// Res is response
 
-app.get("/", (req, res) => res.type('html').send(html));
-app.post("/submit", async (req, res) => {
   // Destructuring
   const { firstName, lastName, title, email, country, street, zip } = req.body;
 
